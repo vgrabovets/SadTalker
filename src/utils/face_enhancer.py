@@ -102,7 +102,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
 
     restorer = GFPGANer(
         model_path=model_path,
-        upscale=2,
+        upscale=1.5,
         arch=arch,
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler)
