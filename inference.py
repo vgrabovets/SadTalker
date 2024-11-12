@@ -1,8 +1,8 @@
 import os
 import shutil
 import sys
+import tempfile
 from argparse import ArgumentParser
-from time import strftime
 
 import torch
 
@@ -19,7 +19,7 @@ def main(args):
 
     pic_path = args.source_image
     audio_path = args.driven_audio
-    save_dir = os.path.join(args.result_dir, strftime("%Y_%m_%d_%H.%M.%S"))
+    save_dir = tempfile.gettempdir()
     os.makedirs(save_dir, exist_ok=True)
     pose_style = args.pose_style
     device = args.device
@@ -88,14 +88,18 @@ def main(args):
                                 head_motion_scale=args.head_motion_scale,
                                 still_mode=args.still, preprocess=args.preprocess, size=args.size)
     
-    result = animate_from_coeff.generate(data, save_dir, pic_path, crop_info, \
-                                enhancer=args.enhancer, background_enhancer=args.background_enhancer, preprocess=args.preprocess, img_size=args.size)
+    result = animate_from_coeff.generate(
+        data,
+        save_dir,
+        pic_path,
+        crop_info,
+        enhancer=args.enhancer,
+        background_enhancer=args.background_enhancer,
+        preprocess=args.preprocess,
+        img_size=args.size,
+    )
     
-    shutil.move(result, save_dir+'.mp4')
-    print('The generated video is named:', save_dir+'.mp4')
-
-    if not args.verbose:
-        shutil.rmtree(save_dir)
+    shutil.move(result, args.save_path)
 
 
 def get_args():
@@ -106,7 +110,7 @@ def get_args():
     parser.add_argument("--ref_eyeblink", default=None, help="path to reference video providing eye blinking")
     parser.add_argument("--ref_pose", default=None, help="path to reference video providing pose")
     parser.add_argument("--checkpoint_dir", default='./checkpoints', help="path to output")
-    parser.add_argument("--result_dir", default='./results', help="path to output")
+    parser.add_argument("--save_path", help="path to output")
     parser.add_argument("--pose_style", type=int, default=0,  help="input pose style from [0, 46)")
     parser.add_argument("--batch_size", type=int, default=2,  help="the batch size of facerender")
     parser.add_argument("--size", type=int, default=256,  help="the image size of the facerender")
