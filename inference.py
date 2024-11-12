@@ -1,16 +1,18 @@
-from glob import glob
+import os
 import shutil
-import torch
-from time import  strftime
-import os, sys, time
+import sys
 from argparse import ArgumentParser
+from time import strftime
 
-from src.utils.preprocess import CropAndExtract
-from src.test_audio2coeff import Audio2Coeff  
+import torch
+
 from src.facerender.animate import AnimateFromCoeff
 from src.generate_batch import get_data
 from src.generate_facerender_batch import get_facerender_data
+from src.test_audio2coeff import Audio2Coeff
 from src.utils.init_path import init_path
+from src.utils.preprocess import CropAndExtract
+
 
 def main(args):
     #torch.backends.cudnn.enabled = False
@@ -95,9 +97,8 @@ def main(args):
     if not args.verbose:
         shutil.rmtree(save_dir)
 
-    
-if __name__ == '__main__':
 
+def get_args():
     parser = ArgumentParser()
     parser.add_argument("--head_motion_scale", type=float, default=1.,  help="head motion scale")
     parser.add_argument("--driven_audio", default='./examples/driven_audio/bus_chinese.wav', help="path to driven audio")
@@ -115,12 +116,12 @@ if __name__ == '__main__':
     parser.add_argument('--input_roll', nargs='+', type=int, default=None, help="the input roll degree of the user")
     parser.add_argument('--enhancer',  type=str, default=None, help="Face enhancer, [gfpgan, RestoreFormer]")
     parser.add_argument('--background_enhancer',  type=str, default=None, help="background enhancer, [realesrgan]")
-    parser.add_argument("--cpu", dest="cpu", action="store_true") 
-    parser.add_argument("--face3dvis", action="store_true", help="generate 3d face and 3d landmarks") 
-    parser.add_argument("--still", action="store_true", help="can crop back to the original videos for the full body aniamtion") 
-    parser.add_argument("--preprocess", default='crop', choices=['crop', 'extcrop', 'resize', 'full', 'extfull'], help="how to preprocess the images" ) 
-    parser.add_argument("--verbose",action="store_true", help="saving the intermedia output or not" ) 
-    parser.add_argument("--old_version",action="store_true", help="use the pth other than safetensor version" ) 
+    parser.add_argument("--cpu", dest="cpu", action="store_true")
+    parser.add_argument("--face3dvis", action="store_true", help="generate 3d face and 3d landmarks")
+    parser.add_argument("--still", action="store_true", help="can crop back to the original videos for the full body aniamtion")
+    parser.add_argument("--preprocess", default='crop', choices=['crop', 'extcrop', 'resize', 'full', 'extfull'], help="how to preprocess the images" )
+    parser.add_argument("--verbose",action="store_true", help="saving the intermedia output or not" )
+    parser.add_argument("--old_version",action="store_true", help="use the pth other than safetensor version" )
 
 
     # net structure and parameters
@@ -144,5 +145,9 @@ if __name__ == '__main__':
     else:
         args.device = "cpu"
 
-    main(args)
+    return args
 
+
+if __name__ == '__main__':
+    args = get_args()
+    main(args)
