@@ -7,7 +7,7 @@ import scipy.io as scio
 
 def get_facerender_data(coeff_path, pic_path, first_coeff_path, audio_path, 
                         batch_size, input_yaw_list=None, input_pitch_list=None, input_roll_list=None, 
-                        expression_scale=1.0, still_mode = False, preprocess='crop', size = 256):
+                        expression_scale=1.0, still_mode = False, preprocess='crop', size = 256, head_motion_scale=1.0):
 
     semantic_radius = 13
     video_name = os.path.splitext(os.path.split(coeff_path)[-1])[0]
@@ -42,6 +42,7 @@ def get_facerender_data(coeff_path, pic_path, first_coeff_path, audio_path,
 
     # target 
     generated_3dmm[:, :64] = generated_3dmm[:, :64] * expression_scale
+    generated_3dmm[:, 64:] = generated_3dmm[:, 64:] * head_motion_scale
 
     if 'full' in preprocess.lower():
         generated_3dmm = np.concatenate([generated_3dmm, np.repeat(source_semantics[:,70:], generated_3dmm.shape[0], axis=0)], axis=1)
